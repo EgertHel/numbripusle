@@ -10,8 +10,11 @@
 BUILD_DIR = build
 IMGUI_DIR = ./include/imgui
 
-EXE = $(BUILD_DIR)/example_sdl3_opengl3
-SOURCES = main.cpp
+# Projekti nimi
+PROJ_NAME = numbripusle
+
+EXE = $(BUILD_DIR)/$(PROJ_NAME)
+SOURCES = mang.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl3.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 OBJS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
