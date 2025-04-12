@@ -181,7 +181,7 @@ int main() {
         else if (aktiivneVaade == Vaade::MANG) {
             ImGui::Begin("Mäng", nullptr, ImGuiWindowFlags_NoResize);
 
-            ImGui::Text("Siin tuleb mängulaud (nt %dx%d grid)", gridSize, gridSize);
+            ImGui::Text("Siin tuleb mängulaud (nt %dx%d grid) ", gridSize, gridSize);
             ImGui::NewLine();
 
             if (ImGui::Button("Tagasi menüüsse")) {
