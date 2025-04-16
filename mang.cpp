@@ -108,7 +108,8 @@ int main() {
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f); // Akna taustavärv
-    bool mangKaib = true;
+    bool mangKaib = true; // mainloopi muutuja
+    bool manguakenAvatud = false; // Algselt avaneb menüü mitte mäng
 
     // Mainloop
     while (mangKaib) {
@@ -137,61 +138,76 @@ int main() {
         ImGui::NewFrame();
 
 
-        // Imgui akna definitsioon
-        ImVec2 fixedSize(512, 288);
-        ImGui::SetNextWindowSize(fixedSize, ImGuiCond_Always);
-        ImGui::Begin("Numbripusle", nullptr, ImGuiWindowFlags_NoResize);
+        // Kui mänguaken suleti, kuid vaade on ikka MANG, siis tuleks see ära muuta,
+        // et menüü uuesti avaneks
+        if (!manguakenAvatud && aktiivneVaade == Vaade::MANG) {
+            aktiivneVaade = Vaade::MENYY;
+        }
 
         if (aktiivneVaade == Vaade::MENYY) {
-        // Tekst on keskel
-        float textWidth = ImGui::CalcTextSize("Tere tulemast numbripusle mängu!").x;
-        AlignForWidth(textWidth);
-        ImGui::Text("Tere tulemast numbripusle mängu!");
-        ImGui::NewLine();
-        ImGui::Text("Kas suudad kõik numbrid õigesse järjekorda panna?\n");
-        ImGui::Text("Iga käik loeb! Püüa lahendada pusle võimalikult väheste käikudega!\n");
-        ImGui::NewLine();
-        ImGui::Text("Vali sobiv ruudustiku suurus ja asu väljakutsele!\n");
-        ImGui::Text("Head mänguõnne!\n");
-        ImGui::NewLine();
+            // Imgui akna definitsioon
+            ImVec2 fixedSize(512, 288);
+            ImGui::SetNextWindowSize(fixedSize, ImGuiCond_Always);
+            ImGui::Begin("Numbripusle", nullptr, ImGuiWindowFlags_NoResize);
 
-        // Paigutame slideri keskele
-        float sliderWidth = 300.0f;
-        AlignForWidth(sliderWidth);
-        ImGui::SliderInt(" ", &gridSize, 3, 8);
-        ImGui::NewLine();
+            // Tekst on keskel
+            float textWidth = ImGui::CalcTextSize("Tere tulemast numbripusle mängu!").x;
+            AlignForWidth(textWidth);
+            ImGui::Text("Tere tulemast numbripusle mängu!");
+            ImGui::NewLine();
+            ImGui::Text("Kas suudad kõik numbrid õigesse järjekorda panna?\n");
+            ImGui::Text("Iga käik loeb! Püüa lahendada pusle võimalikult väheste käikudega!\n");
+            ImGui::NewLine();
+            ImGui::Text("Vali sobiv ruudustiku suurus ja asu väljakutsele!\n");
+            ImGui::Text("Head mänguõnne!\n");
+            ImGui::NewLine();
 
-        // Et nupud oleks keskel
-        ImGui::SetCursorPosX(fixedSize.x * 0.5f - 100);
-        if (ImGui::Button("Alusta mängu")) {
-            aktiivneVaade = Vaade::MANG;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Välju mängust")) {
-            mangKaib = false;
-        }
+            // Paigutame slideri keskele
+            float sliderWidth = 300.0f;
+            AlignForWidth(sliderWidth);
+            ImGui::SliderInt(" ", &gridSize, 3, 8);
+            ImGui::NewLine();
 
-        // 10 pikslit servast
-        float bottomY = ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing() - 10;
-        ImGui::SetCursorPosY(bottomY);
+            // Et nupud oleks keskel
+            ImGui::SetCursorPosX(fixedSize.x * 0.5f - 100);
+            if (ImGui::Button("Alusta mängu")) {
+                aktiivneVaade = Vaade::MANG;
+                manguakenAvatud = true;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Välju mängust")) {
+                mangKaib = true;
+            }
 
-        ImGui::Text("Mängu tegid: Annabel & Egert\n");
+            // 10 pikslit servast
+            float bottomY = ImGui::GetWindowHeight() - ImGui::GetTextLineHeightWithSpacing() - 10;
+            ImGui::SetCursorPosY(bottomY);
+
+            ImGui::Text("Mängu tegid: Annabel & Egert\n");
+
+            ImGui::End();
 
         }
         else if (aktiivneVaade == Vaade::MANG) {
-            ImGui::Begin("Mäng", nullptr, ImGuiWindowFlags_NoResize);
+            // Tuleb kontrollida, kas "X" nuppu on vajutatud
+            if (!manguakenAvatud) {
+                break;
+            }
+
+            ImGui::Begin("Mäng", &manguakenAvatud, ImGuiWindowFlags_NoResize);
 
             ImGui::Text("Siin tuleb mängulaud (nt %dx%d grid) ", gridSize, gridSize);
             ImGui::NewLine();
 
             if (ImGui::Button("Tagasi menüüsse")) {
                 aktiivneVaade = Vaade::MENYY;
+                manguakenAvatud = false;
             }
             ImGui::End();
+
         }
 
-        //END
-        ImGui::End();
+
 
 
         // Renderimine
