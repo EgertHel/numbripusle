@@ -2,6 +2,7 @@
 #include "include/imgui/imgui_impl_sdl3.h"
 #include "include/imgui/imgui_impl_opengl3.h"
 #include <stdio.h>
+#include <string>
 #include <SDL3/SDL.h>
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -176,7 +177,7 @@ int main() {
             }
             ImGui::SameLine();
             if (ImGui::Button("Välju mängust")) {
-                mangKaib = true;
+                mangKaib = false;
             }
 
             // 10 pikslit servast
@@ -194,9 +195,28 @@ int main() {
                 break;
             }
 
+            // Akna suurus on nuppude arv * (nupu laius + vahe laius nuppude vahel) + 100
+            // ehk kummalgi pool ekraani peaks 50 ühikut vaba ruumi olema
+            ImVec2 manguAknaSuurus{static_cast<float>(gridSize)*(40 + ImGui::GetStyle().ItemSpacing.x) + 100, static_cast<float>(gridSize*40) + 150};
+            ImGui::SetNextWindowSize(manguAknaSuurus, ImGuiCond_Always);
             ImGui::Begin("Mäng", &manguakenAvatud, ImGuiWindowFlags_NoResize);
 
             ImGui::Text("Siin tuleb mängulaud (nt %dx%d grid) ", gridSize, gridSize);
+
+            // Mängulaua loomine
+            ImGui::NewLine();
+            for (int rida{}; rida < gridSize; rida++) {
+                for (int veerg{}; veerg < gridSize; veerg++) {
+                    ImGui::SameLine();
+
+                    // Sean ruudustiku ekraani keskele (horisontaalselt)
+                    if (veerg == 0) ImGui::SetCursorPosX(50);
+                    ImGui::Button(std::to_string(rida*gridSize + veerg+1).c_str(), ImVec2(40, 40));
+                }
+                ImGui::NewLine();
+            }
+
+
             ImGui::NewLine();
 
             if (ImGui::Button("Tagasi menüüsse")) {
