@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 #include <SDL3/SDL.h>
+#include "grid.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <include/SDL3/SDL_opengles2.h>
@@ -34,6 +35,12 @@ enum class Vaade {
 Vaade aktiivneVaade = Vaade::MENYY;
 //Mängulaua suurus mida kasutaja saab valida
 static int gridSize = 3;
+//Mitu käiku on kasutaja käinud
+int kaigud = 0;
+//Nuppude väärtuste massiiv
+static std::vector<int> nuppudeVäärtused;
+//Kas nuppude väärtused on juba genetud?
+static bool kasOnGenereeritud = false;
 
 
 int main() {
@@ -174,6 +181,8 @@ int main() {
             if (ImGui::Button("Alusta mängu")) {
                 aktiivneVaade = Vaade::MANG;
                 manguakenAvatud = true;
+                kaigud = 0;
+                kasOnGenereeritud = false;
             }
             ImGui::SameLine();
             if (ImGui::Button("Välju mängust")) {
@@ -188,8 +197,7 @@ int main() {
 
             ImGui::End();
 
-        }
-        else if (aktiivneVaade == Vaade::MANG) {
+        } else if (aktiivneVaade == Vaade::MANG) {
             // Tuleb kontrollida, kas "X" nuppu on vajutatud
             if (!manguakenAvatud) {
                 break;
@@ -197,21 +205,49 @@ int main() {
 
             // Akna suurus on nuppude arv * (nupu laius + vahe laius nuppude vahel) + 100
             // ehk kummalgi pool ekraani peaks 50 ühikut vaba ruumi olema
-            ImVec2 manguAknaSuurus{static_cast<float>(gridSize)*(40 + ImGui::GetStyle().ItemSpacing.x) + 100, static_cast<float>(gridSize*40) + 150};
+            ImVec2 manguAknaSuurus{static_cast<float>(gridSize) * (40 + ImGui::GetStyle().ItemSpacing.x) + 100,
+                                   static_cast<float>(gridSize * 40) + 150};
             ImGui::SetNextWindowSize(manguAknaSuurus, ImGuiCond_Always);
             ImGui::Begin("Mäng", &manguakenAvatud, ImGuiWindowFlags_NoResize);
 
-            ImGui::Text("Siin tuleb mängulaud (nt %dx%d grid) ", gridSize, gridSize);
+            std::string kaigudStr = "Käike tehtud: " + std::to_string(kaigud);
+            AlignForWidth(ImGui::CalcTextSize(kaigudStr.c_str()).x);
+            ImGui::Text("%s", kaigudStr.c_str());
+
+
+            // Veidi vahet
+            ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+            // Genereerime lahendatava ruudustiku
+            if (!kasOnGenereeritud) {
+                nuppudeVäärtused = GenerateSolvablePuzzle(gridSize);
+                kasOnGenereeritud = true;
+            }
+
 
             // Mängulaua loomine
             ImGui::NewLine();
-            for (int rida{}; rida < gridSize; rida++) {
-                for (int veerg{}; veerg < gridSize; veerg++) {
+            for (int rida = 0; rida < gridSize; rida++) {
+                for (int veerg = 0; veerg < gridSize; veerg++) {
                     ImGui::SameLine();
 
-                    // Sean ruudustiku ekraani keskele (horisontaalselt)
+                    // Arvutame indeksi vektoris
+                    int index = rida * gridSize + veerg;
+                    int väärtus = nuppudeVäärtused[index];
+
+                    // Keskele joondamine
                     if (veerg == 0) ImGui::SetCursorPosX(50);
-                    ImGui::Button(std::to_string(rida*gridSize + veerg+1).c_str(), ImVec2(40, 40));
+
+                    // Kui väärtus on 0, siis jätame tühja koha (see on tühi ruut)
+                    if (väärtus == 0) {
+                        ImGui::Button(" ", ImVec2(40, 40));
+                    } else {
+                        // Muidu loome nupu vastava väärtusega
+                        if (ImGui::Button(std::to_string(väärtus).c_str(), ImVec2(40, 40))) {
+                            kaigud++;
+                            // TODO mis juhtub kui nuppu vajutatakse?
+                        }
+                    }
                 }
                 ImGui::NewLine();
             }
