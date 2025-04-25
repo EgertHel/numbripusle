@@ -206,7 +206,7 @@ int main() {
             // Akna suurus on nuppude arv * (nupu laius + vahe laius nuppude vahel) + 100
             // ehk kummalgi pool ekraani peaks 50 ühikut vaba ruumi olema
             ImVec2 manguAknaSuurus{static_cast<float>(gridSize) * (40 + ImGui::GetStyle().ItemSpacing.x) + 100,
-                                   static_cast<float>(gridSize * 40) + 150};
+                                   static_cast<float>(gridSize * 40) + 165};
             ImGui::SetNextWindowSize(manguAknaSuurus, ImGuiCond_Always);
             ImGui::Begin("Mäng", &manguakenAvatud, ImGuiWindowFlags_NoResize);
 
@@ -244,8 +244,35 @@ int main() {
                     } else {
                         // Muidu loome nupu vastava väärtusega
                         if (ImGui::Button(std::to_string(väärtus).c_str(), ImVec2(40, 40))) {
-                            kaigud++;
-                            // TODO mis juhtub kui nuppu vajutatakse?
+                            // Leia tühi koht
+                            int emptyIndex = -1;
+                            for (size_t i = 0; i < nuppudeVäärtused.size(); i++) {
+                                if (nuppudeVäärtused[i] == 0) {
+                                    emptyIndex = i;
+                                    break;
+                                }
+                            }
+
+                            int row = index / gridSize;
+                            int col = index % gridSize;
+                            int emptyRow = emptyIndex / gridSize;
+                            int emptyCol = emptyIndex % gridSize;
+
+                            // Kas tühi on naaber?
+                            bool isAdjacent =
+                                    (row == emptyRow && abs(col - emptyCol) == 1) ||  // vasak/parem
+                                    (col == emptyCol && abs(row - emptyRow) == 1);   // üleval/all
+
+                            if (isAdjacent) {
+                                std::swap(nuppudeVäärtused[index], nuppudeVäärtused[emptyIndex]);
+                                kaigud++;
+
+                                // Võidukontroll – kui soovid kohe pärast liikumist kontrollida
+                                if (IsPuzzleSolved(nuppudeVäärtused, gridSize)) {
+                                    ImGui::OpenPopup("Võit!");;
+                                }
+                            }
+
                         }
                     }
                 }
@@ -258,7 +285,19 @@ int main() {
             if (ImGui::Button("Tagasi menüüsse")) {
                 aktiivneVaade = Vaade::MENYY;
                 manguakenAvatud = false;
+            }// Kontrollime, kas "Võit!" pop-up aken on avatud
+            if (ImGui::BeginPopupModal("Võit!", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+                ImGui::Text("Palju õnne! Sa lahendasid numbripusle!");
+                ImGui::Text("Käike kulus: %d", kaigud);
+                ImGui::Dummy(ImVec2(0.0f, 10.0f));
+                if (ImGui::Button("Tagasi menüüsse")) {
+                    aktiivneVaade = Vaade::MENYY;
+                    manguakenAvatud = false;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
             }
+
             ImGui::End();
 
         }

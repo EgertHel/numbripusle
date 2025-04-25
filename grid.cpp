@@ -90,3 +90,15 @@ std::vector<int> GenerateSolvablePuzzle(int gridSize) {
 
     return grid;
 }
+
+// Funktsioon, mis kontrollib kas on lahendatud
+bool IsPuzzleSolved(std::vector<int>& grid, int N) {
+    int size = N * N;
+    for (int i = 0; i < size - 1; ++i) {
+        if (grid[i] != i + 1)
+            return false;
+    }
+    // Viimane ruut peab olema tühi
+    return grid[size - 1] == 0;
+}
+

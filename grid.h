@@ -13,6 +13,7 @@ int findXPosition(std::vector<int> &puzzle, int N);
 bool isSolvable(std::vector<int> &puzzle, int N);
 void printGrid(const std::vector<int> &grid, int N);
 std::vector<int> GenerateSolvablePuzzle(int gridSize);
+bool IsPuzzleSolved(std::vector<int> &grid, int N);
 
 class grid {
 
