@@ -19,3 +19,6 @@ For example, in a 4x4 grid, the numbers range from [1, 15]. When the player clic
 ## Solvability Check
 
 ## How to Run
+Download the repository and compile the program using make. By default, the executable will be placed in the ```build``` directory.
+
+To run the executable, ensure that ```SDL3.dll``` is located in the same directory as the executable. You can find ```SDL3.dll``` in the ```build``` directory.
