@@ -3,7 +3,7 @@
 #include "include/imgui/imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <string>
-#include <SDL3/SDL.h>
+#include "include/SDL3/SDL.h"
 #include "grid.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -82,7 +82,7 @@ int main() {
 #endif
 
     // SDL akna loomine
-    SDL_Window *window = SDL_CreateWindow("Mang", 1280, 720,
+    SDL_Window *window = SDL_CreateWindow("Mang", 512, 288,
                                           SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
     if (window == nullptr) {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
@@ -91,6 +91,7 @@ int main() {
 
     // Sean akna ekraani keskele
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    SDL_SetWindowResizable(window, false);
 
     // Akna loomise kontroll
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
@@ -156,7 +157,8 @@ int main() {
             // Imgui akna definitsioon
             ImVec2 fixedSize(512, 288);
             ImGui::SetNextWindowSize(fixedSize, ImGuiCond_Always);
-            ImGui::Begin("Numbripusle", nullptr, ImGuiWindowFlags_NoResize);
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::Begin("Numbripusle", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
             // Tekst on keskel
             float textWidth = ImGui::CalcTextSize("Tere tulemast numbripusle mängu!").x;
@@ -183,6 +185,8 @@ int main() {
                 manguakenAvatud = true;
                 kaigud = 0;
                 kasOnGenereeritud = false;
+                SDL_SetWindowSize(window, static_cast<float>(gridSize) * (40 + ImGui::GetStyle().ItemSpacing.x) + 100,
+                                static_cast<float>(gridSize * 40) + 165);
             }
             ImGui::SameLine();
             if (ImGui::Button("Välju mängust")) {
@@ -208,7 +212,8 @@ int main() {
             ImVec2 manguAknaSuurus{static_cast<float>(gridSize) * (40 + ImGui::GetStyle().ItemSpacing.x) + 100,
                                    static_cast<float>(gridSize * 40) + 165};
             ImGui::SetNextWindowSize(manguAknaSuurus, ImGuiCond_Always);
-            ImGui::Begin("Mäng", &manguakenAvatud, ImGuiWindowFlags_NoResize);
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::Begin("Mäng", &manguakenAvatud, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
             std::string kaigudStr = "Käike tehtud: " + std::to_string(kaigud);
             AlignForWidth(ImGui::CalcTextSize(kaigudStr.c_str()).x);
@@ -285,6 +290,7 @@ int main() {
             if (ImGui::Button("Tagasi menüüsse")) {
                 aktiivneVaade = Vaade::MENYY;
                 manguakenAvatud = false;
+                SDL_SetWindowSize(window, 512, 288);
             }// Kontrollime, kas "Võit!" pop-up aken on avatud
             if (ImGui::BeginPopupModal("Võit!", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
                 ImGui::Text("Palju õnne! Sa lahendasid numbripusle!");
@@ -294,6 +300,7 @@ int main() {
                     aktiivneVaade = Vaade::MENYY;
                     manguakenAvatud = false;
                     ImGui::CloseCurrentPopup();
+                    SDL_SetWindowSize(window, 512, 288);
                 }
                 ImGui::EndPopup();
             }
