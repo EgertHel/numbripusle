@@ -82,7 +82,7 @@ int main() {
 #endif
 
     // SDL akna loomine
-    SDL_Window *window = SDL_CreateWindow("Mang", 512, 288,
+    SDL_Window *window = SDL_CreateWindow("Mang", 1024, 576,
                                           SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
     if (window == nullptr) {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
@@ -109,6 +109,11 @@ int main() {
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void) io;
+
+    // Fondisuuruse seadmine
+    ImFontConfig fontConf;
+    fontConf.SizePixels = 20.0f;
+    io.Fonts->AddFontDefault(&fontConf);
 
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
@@ -155,7 +160,7 @@ int main() {
 
         if (aktiivneVaade == Vaade::MENYY) {
             // Imgui akna definitsioon
-            ImVec2 fixedSize(512, 288);
+            ImVec2 fixedSize(1024, 576);
             ImGui::SetNextWindowSize(fixedSize, ImGuiCond_Always);
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Numbripusle", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
@@ -173,23 +178,24 @@ int main() {
             ImGui::NewLine();
 
             // Paigutame slideri keskele
-            float sliderWidth = 300.0f;
+            float sliderWidth = 653.0f;
             AlignForWidth(sliderWidth);
             ImGui::SliderInt(" ", &gridSize, 3, 8);
             ImGui::NewLine();
 
             // Et nupud oleks keskel
-            ImGui::SetCursorPosX(fixedSize.x * 0.5f - 100);
-            if (ImGui::Button("Alusta mängu")) {
+            ImGui::SetCursorPosX(fixedSize.x * 0.5f - 200);
+            if (ImGui::Button("Alusta mängu", ImVec2(200, 40))) {
                 aktiivneVaade = Vaade::MANG;
                 manguakenAvatud = true;
                 kaigud = 0;
                 kasOnGenereeritud = false;
-                SDL_SetWindowSize(window, static_cast<float>(gridSize) * (40 + ImGui::GetStyle().ItemSpacing.x) + 100,
-                                static_cast<float>(gridSize * 40) + 165);
+                SDL_SetWindowSize(window, static_cast<float>(gridSize) * (70 + ImGui::GetStyle().ItemSpacing.x) + 100,
+                                static_cast<float>(gridSize * 70) + 200);
+                SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
             }
             ImGui::SameLine();
-            if (ImGui::Button("Välju mängust")) {
+            if (ImGui::Button("Välju mängust", ImVec2(200, 40))) {
                 mangKaib = false;
             }
 
@@ -209,8 +215,8 @@ int main() {
 
             // Akna suurus on nuppude arv * (nupu laius + vahe laius nuppude vahel) + 100
             // ehk kummalgi pool ekraani peaks 50 ühikut vaba ruumi olema
-            ImVec2 manguAknaSuurus{static_cast<float>(gridSize) * (40 + ImGui::GetStyle().ItemSpacing.x) + 100,
-                                   static_cast<float>(gridSize * 40) + 165};
+            ImVec2 manguAknaSuurus{static_cast<float>(gridSize) * (70 + ImGui::GetStyle().ItemSpacing.x) + 100,
+                                   static_cast<float>(gridSize * 70) + 200};
             ImGui::SetNextWindowSize(manguAknaSuurus, ImGuiCond_Always);
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Mäng", &manguakenAvatud, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
@@ -245,10 +251,14 @@ int main() {
 
                     // Kui väärtus on 0, siis jätame tühja koha (see on tühi ruut)
                     if (väärtus == 0) {
-                        ImGui::Button(" ", ImVec2(40, 40));
+                        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(39.0f / 255.0f, 73.0f / 255.0f, 114.0f / 255.0f, 0.4f));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(39.0f / 255.0f, 73.0f / 255.0f, 114.0f / 255.0f, 0.4f));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(39.0f / 255.0f, 73.0f / 255.0f, 114.0f / 255.0f, 0.4f));
+                        ImGui::Button(" ", ImVec2(70, 70));
+                        ImGui::PopStyleColor(3);
                     } else {
                         // Muidu loome nupu vastava väärtusega
-                        if (ImGui::Button(std::to_string(väärtus).c_str(), ImVec2(40, 40))) {
+                        if (ImGui::Button(std::to_string(väärtus).c_str(), ImVec2(70, 70))) {
                             // Leia tühi koht
                             int emptyIndex = -1;
                             for (size_t i = 0; i < nuppudeVäärtused.size(); i++) {
@@ -287,20 +297,23 @@ int main() {
 
             ImGui::NewLine();
 
-            if (ImGui::Button("Tagasi menüüsse")) {
+            if (ImGui::Button("Tagasi menüüsse", ImVec2(200, 40))) {
                 aktiivneVaade = Vaade::MENYY;
                 manguakenAvatud = false;
-                SDL_SetWindowSize(window, 512, 288);
+                SDL_SetWindowSize(window, 1024, 576);
+                SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
             }// Kontrollime, kas "Võit!" pop-up aken on avatud
             if (ImGui::BeginPopupModal("Võit!", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-                ImGui::Text("Palju õnne! Sa lahendasid numbripusle!");
+                ImGui::Text("Palju õnne!");
+                ImGui::Text("Sa lahendasid numbripusle!");
                 ImGui::Text("Käike kulus: %d", kaigud);
                 ImGui::Dummy(ImVec2(0.0f, 10.0f));
                 if (ImGui::Button("Tagasi menüüsse")) {
                     aktiivneVaade = Vaade::MENYY;
                     manguakenAvatud = false;
                     ImGui::CloseCurrentPopup();
-                    SDL_SetWindowSize(window, 512, 288);
+                    SDL_SetWindowSize(window, 1024, 576);
+                    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
                 }
                 ImGui::EndPopup();
             }
