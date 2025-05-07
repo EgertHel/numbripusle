@@ -251,7 +251,6 @@ int main() {
 
 
             // Mängulaua loomine
-            ImVec2 algPos = ImGui::GetCursorPos();
             float animatsioonX;
             float animatsioonY;
             for (int rida = 0; rida < gridSize; rida++) {
