@@ -161,18 +161,30 @@ int main() {
             ImVec2 fixedSize(1024, 576);
             ImGui::SetNextWindowSize(fixedSize, ImGuiCond_Always);
             ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::Begin("Numbripusle", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+            ImGui::Begin("Numbripusle", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
             // Tekst on keskel
             float textWidth = ImGui::CalcTextSize("Tere tulemast numbripusle mängu!").x;
             AlignForWidth(textWidth);
             ImGui::Text("Tere tulemast numbripusle mängu!");
             ImGui::NewLine();
-            ImGui::Text("Kas suudad kõik numbrid õigesse järjekorda panna?\n");
-            ImGui::Text("Iga käik loeb! Püüa lahendada pusle võimalikult väheste käikudega!\n");
+
+            textWidth = ImGui::CalcTextSize("Kas suudad kõik numbrid õigesse järjekorda panna?").x;
+            AlignForWidth(textWidth);
+            ImGui::Text("Kas suudad kõik numbrid õigesse järjekorda panna?");
+
+            textWidth = ImGui::CalcTextSize("Iga käik loeb! Püüa lahendada pusle võimalikult väheste käikudega!").x;
+            AlignForWidth(textWidth);
+            ImGui::Text("Iga käik loeb! Püüa lahendada pusle võimalikult väheste käikudega!");
             ImGui::NewLine();
-            ImGui::Text("Vali sobiv ruudustiku suurus ja asu väljakutsele!\n");
-            ImGui::Text("Head mänguõnne!\n");
+
+            textWidth = ImGui::CalcTextSize("Vali sobiv ruudustiku suurus ja asu väljakutsele!").x;
+            AlignForWidth(textWidth);
+            ImGui::Text("Vali sobiv ruudustiku suurus ja asu väljakutsele!");
+
+            textWidth = ImGui::CalcTextSize("Head mänguõnne!").x;
+            AlignForWidth(textWidth);
+            ImGui::Text("Head mänguõnne!");
             ImGui::NewLine();
 
             // Paigutame slideri keskele
@@ -217,7 +229,7 @@ int main() {
                                    static_cast<float>(gridSize * 70) + 220};
             ImGui::SetNextWindowSize(manguAknaSuurus, ImGuiCond_Always);
             ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::Begin("Mäng", &manguakenAvatud, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+            ImGui::Begin("Mäng", &manguakenAvatud, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
 
             std::string kaigudStr = "Käike tehtud: " + std::to_string(kaigud);
             AlignForWidth(ImGui::CalcTextSize(kaigudStr.c_str()).x);
@@ -247,7 +259,7 @@ int main() {
                     // Keskele joondamine
                     if (veerg == 0) ImGui::SetCursorPosX(50);
 
-                    // Kui väärtus on 0, siis jätame tühja koha (see on tühi ruut)
+                    // Kui väärtus on 0, siis jätame tühja koha
                     if (väärtus == 0) {
                         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(39.0f / 255.0f, 73.0f / 255.0f, 114.0f / 255.0f, 0.4f));
                         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(39.0f / 255.0f, 73.0f / 255.0f, 114.0f / 255.0f, 0.4f));
@@ -271,7 +283,7 @@ int main() {
                             int emptyRow = emptyIndex / gridSize;
                             int emptyCol = emptyIndex % gridSize;
 
-                            // Kas tühi on naaber?
+                            // Tühja koha kontroll
                             bool isAdjacent =
                                     (row == emptyRow && abs(col - emptyCol) == 1) ||  // vasak/parem
                                     (col == emptyCol && abs(row - emptyRow) == 1);   // üleval/all
@@ -280,9 +292,9 @@ int main() {
                                 std::swap(nuppudeVäärtused[index], nuppudeVäärtused[emptyIndex]);
                                 kaigud++;
 
-                                // Võidukontroll – kui soovid kohe pärast liikumist kontrollida
+                                // Võidukontroll
                                 if (IsPuzzleSolved(nuppudeVäärtused, gridSize)) {
-                                    ImGui::OpenPopup("Võit!");;
+                                    ImGui::OpenPopup("Võit!");
                                 }
                             }
 
