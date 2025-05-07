@@ -80,3 +80,7 @@ $(EXE): $(OBJS)
 
 clean:
 	rm -f $(EXE) $(OBJS)
+
+run: $(EXE)
+	@echo Running $(EXE)
+	@$(EXE)

@@ -9,6 +9,7 @@ imgui*.ini
 *.o
 *.obj
 *.exe
+*.zip
 examples/*/Debug/*
 examples/*/Release/*
 examples/*/x64/*

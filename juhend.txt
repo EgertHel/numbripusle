@@ -1,0 +1,29 @@
+Projekti nimi: numbripusle
+Autorid: Annabel Maksimov, Egert Heliste
+
+Projekti eesmärk on luua numbripusle mäng (Number Slider Puzzle), kus mängija peab numbritega ruudustikku muutma,
+nihutades klotse tühja ruumi suunas, et asetada numbrid õigesse järjestusse võimalikult väikese arvu sammudega.
+
+Mäng koosneb NxN ruudustikust, milles kõik kohad peale ühe on numbritega täidetud. Tühi koht on suvaliselt paigutatud.
+Numbrid algavad ühest ja iga järgmine number on eelmisest täpselt ühe võrra suurem. Seega nt 4x4 ruudustiku
+korral on numbrid vahemikus [1, 15]. Kui vajutada sellisele klotsile, mis külgneb tühja ruuduga,
+siis klots liigub tühja ruudu kohale. Kui vajutada klotsile, mis ei külgne tühja ruuduga, siis ei juhtu midagi.
+Klotsid saavad liikuda vaid horisontaalselt ja vertikaalselt ehk mitte diagonaalis.
+Mängu alguses on numbrid segamini ja mängu eesmärk on järjestada numbrid kasvavas järjekorras.
+
+Algversioon loob graafilise liidese kasutades imguid. Käivitades avaneb avaaken, kus on võimalik valida
+mängu ruudustiku (nxn) suurus vahemikust 3-8. "Välju mängust" nupp sulgeb kogu mängu, "Alusta mängu" nupp sulgeb
+avaakna ja loob uue mänguakna etteantud ruudustiku suurusega, kus klotsid ja tühi koht on suvaliselt paigutatud.
+
+Mängu algseis luuakse nii, et mäng oleks lahenduv. Tühja ruuduga külgnevale klotsile vajutades
+liigub vajutatud klots tühjale kohale ja tehtud käikude loendurit suurendatakse 1 võrra. Kui vajutada klotsile,
+mis ei külgne tühja ruuduga, siis ei juhtu midagi. Kui kasutaja lahendab pusle ära, siis kuvatakse hüpikaknas
+võitmise teade. Mänguakna sulgemine või "Tagasi menüüsse" vajutamine avab uuesti avaakna ja kasutaja saab
+valida uuesti ruudustiku suurust ning alustada uut mängu.
+
+
+Käivitamine:
+Projekti saab kompileerida kasutades Make'i (testitud vaid Windows masinal). Vaikimisi paigutatakse kompileerimise
+tulemus build kausta. Seda saab muuta Makefile'is muutuja abil. Kui build kausta ei eksisteeri, siis see luuakse automaatselt.
+
+Mängu käivitumiseks on vaja, et rakendusega samas kaustas oleks ka SDL3.dll, mis on build kaustas olemas.
