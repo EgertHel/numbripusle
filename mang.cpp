@@ -42,7 +42,6 @@ static std::vector<int> nuppudeVäärtused;
 //Kas nuppude väärtused on juba genetud?
 static bool kasOnGenereeritud = false;
 
-
 int main() {
     // SDL käivitamine
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -122,6 +121,11 @@ int main() {
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f); // Akna taustavärv
     bool mangKaib = true; // mainloopi muutuja
     bool manguakenAvatud = false; // Algselt avaneb menüü mitte mäng
+    std::vector<bool> liigutuseAnimeerimine;
+    ImVec2 animeerimisHetkePos;
+    ImVec2 animeerimisLoppPos;
+    ImVec2 animeerimisSamm;
+    int emptyIndex;
 
     // Mainloop
     while (mangKaib) {
@@ -138,7 +142,6 @@ int main() {
             }
         }
 
-        // Ma ei tea mis see on aga see oli näitekoodis
         if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED) {
             SDL_Delay(10);
             continue;
@@ -200,7 +203,8 @@ int main() {
                 manguakenAvatud = true;
                 kaigud = 0;
                 kasOnGenereeritud = false;
-                SDL_SetWindowSize(window, static_cast<float>(gridSize) * (70 + ImGui::GetStyle().ItemSpacing.x) + 100,
+                liigutuseAnimeerimine = std::vector<bool>(gridSize * gridSize, false);
+                SDL_SetWindowSize(window, static_cast<float>(gridSize * 70) + 100,
                                 static_cast<float>(gridSize * 70) + 220);
                 SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
             }
@@ -225,7 +229,7 @@ int main() {
 
             // Akna suurus on nuppude arv * (nupu laius + vahe laius nuppude vahel) + 100
             // ehk kummalgi pool ekraani peaks 50 ühikut vaba ruumi olema
-            ImVec2 manguAknaSuurus{static_cast<float>(gridSize) * (70 + ImGui::GetStyle().ItemSpacing.x) + 100,
+            ImVec2 manguAknaSuurus{static_cast<float>(gridSize * 70) + 100,
                                    static_cast<float>(gridSize * 70) + 220};
             ImGui::SetNextWindowSize(manguAknaSuurus, ImGuiCond_Always);
             ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -247,17 +251,36 @@ int main() {
 
 
             // Mängulaua loomine
-            ImGui::NewLine();
+            ImVec2 algPos = ImGui::GetCursorPos();
+            float animatsioonX;
+            float animatsioonY;
             for (int rida = 0; rida < gridSize; rida++) {
                 for (int veerg = 0; veerg < gridSize; veerg++) {
-                    ImGui::SameLine();
-
+                    animatsioonX = 0;
+                    animatsioonY = 0;
                     // Arvutame indeksi vektoris
                     int index = rida * gridSize + veerg;
                     int väärtus = nuppudeVäärtused[index];
 
-                    // Keskele joondamine
-                    if (veerg == 0) ImGui::SetCursorPosX(50);
+                    if (liigutuseAnimeerimine[index]) {
+                        animeerimisHetkePos.x += animeerimisSamm.x;
+                        animeerimisHetkePos.y += animeerimisSamm.y;
+                        animatsioonX = animeerimisHetkePos.x;
+                        animatsioonY = animeerimisHetkePos.y;
+
+                        if (animeerimisHetkePos.x == animeerimisLoppPos.x &&
+                            animeerimisHetkePos.y == animeerimisLoppPos.y) {
+                            liigutuseAnimeerimine[index] = false;
+                            std::swap(nuppudeVäärtused[index], nuppudeVäärtused[emptyIndex]);
+                            // Võidukontroll
+                            if (IsPuzzleSolved(nuppudeVäärtused, gridSize)) {
+                                ImGui::OpenPopup("Võit!");
+                            }
+                        }
+                    }
+
+                    ImGui::SetCursorPosX(50 + (veerg * 70) + animatsioonX);
+                    ImGui::SetCursorPosY(70 + (rida * 70) + animatsioonY);
 
                     // Kui väärtus on 0, siis jätame tühja koha
                     if (väärtus == 0) {
@@ -270,7 +293,7 @@ int main() {
                         // Muidu loome nupu vastava väärtusega
                         if (ImGui::Button(std::to_string(väärtus).c_str(), ImVec2(70, 70))) {
                             // Leia tühi koht
-                            int emptyIndex = -1;
+                            emptyIndex = -1;
                             for (size_t i = 0; i < nuppudeVäärtused.size(); i++) {
                                 if (nuppudeVäärtused[i] == 0) {
                                     emptyIndex = i;
@@ -289,7 +312,10 @@ int main() {
                                     (col == emptyCol && abs(row - emptyRow) == 1);   // üleval/all
 
                             if (isAdjacent) {
-                                std::swap(nuppudeVäärtused[index], nuppudeVäärtused[emptyIndex]);
+                                liigutuseAnimeerimine[index] = true;
+                                animeerimisHetkePos = ImVec2(0, 0);
+                                animeerimisLoppPos = ImVec2(((emptyCol - col) * 70), ((emptyRow - row) * 70));
+                                animeerimisSamm = ImVec2(((emptyCol - col) * 10), ((emptyRow - row) * 10));
                                 kaigud++;
 
                                 // Võidukontroll
@@ -301,11 +327,10 @@ int main() {
                         }
                     }
                 }
-                ImGui::NewLine();
             }
 
-
-            ImGui::NewLine();
+            
+            ImGui::SetCursorPos(ImVec2(50, (70 + (gridSize * 70) + 70)));
 
             if (ImGui::Button("Tagasi menüüsse", ImVec2(200, 40))) {
                 aktiivneVaade = Vaade::MENYY;
