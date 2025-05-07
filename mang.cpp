@@ -110,10 +110,8 @@ int main() {
     ImGuiIO &io = ImGui::GetIO();
     (void) io;
 
-    // Fondisuuruse seadmine
-    ImFontConfig fontConf;
-    fontConf.SizePixels = 20.0f;
-    io.Fonts->AddFontDefault(&fontConf);
+    // Enda fondi seadmine
+    io.FontDefault = io.Fonts->AddFontFromFileTTF("Leedsuni-23p8.ttf", 22.0f);
 
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
@@ -191,7 +189,7 @@ int main() {
                 kaigud = 0;
                 kasOnGenereeritud = false;
                 SDL_SetWindowSize(window, static_cast<float>(gridSize) * (70 + ImGui::GetStyle().ItemSpacing.x) + 100,
-                                static_cast<float>(gridSize * 70) + 200);
+                                static_cast<float>(gridSize * 70) + 220);
                 SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
             }
             ImGui::SameLine();
@@ -216,7 +214,7 @@ int main() {
             // Akna suurus on nuppude arv * (nupu laius + vahe laius nuppude vahel) + 100
             // ehk kummalgi pool ekraani peaks 50 ühikut vaba ruumi olema
             ImVec2 manguAknaSuurus{static_cast<float>(gridSize) * (70 + ImGui::GetStyle().ItemSpacing.x) + 100,
-                                   static_cast<float>(gridSize * 70) + 200};
+                                   static_cast<float>(gridSize * 70) + 220};
             ImGui::SetNextWindowSize(manguAknaSuurus, ImGuiCond_Always);
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Mäng", &manguakenAvatud, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
