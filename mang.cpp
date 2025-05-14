@@ -11,6 +11,7 @@
 #else
 
 #include <SDL3/SDL_opengl.h>
+#include <chrono>
 
 #endif
 
@@ -20,6 +21,13 @@ void AlignForWidth(float width, float alignment = 0.5f) {
     float off = (avail - width) * alignment;
     if (off > 0.0f)
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
+}
+std::string VormindaAeg(std::chrono::steady_clock::duration aeg) {
+    auto sekundid = std::chrono::duration_cast<std::chrono::seconds>(aeg).count();
+    int min = sekundid / 60;
+    int sec = sekundid % 60;
+
+    return std::to_string(min) + " min " + std::to_string(sec) + " sek";
 }
 
 #ifdef __EMSCRIPTEN__
@@ -41,6 +49,10 @@ int kaigud = 0;
 static std::vector<int> nuppudeVäärtused;
 //Kas nuppude väärtused on juba genetud?
 static bool kasOnGenereeritud = false;
+std::chrono::steady_clock::time_point mänguAlgus;
+std::chrono::steady_clock::duration möödunudAeg;
+std::chrono::steady_clock::duration loppAeg;
+bool kasTaimerKäib = false;
 
 int main() {
     // SDL käivitamine
@@ -207,6 +219,9 @@ int main() {
                 SDL_SetWindowSize(window, static_cast<float>(gridSize * 70) + 100,
                                 static_cast<float>(gridSize * 70) + 220);
                 SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+                //taimer
+                mänguAlgus = std::chrono::steady_clock::now();
+                kasTaimerKäib = true;
             }
             ImGui::SameLine();
             if (ImGui::Button("Välju mängust", ImVec2(200, 40))) {
@@ -239,6 +254,14 @@ int main() {
             AlignForWidth(ImGui::CalcTextSize(kaigudStr.c_str()).x);
             ImGui::Text("%s", kaigudStr.c_str());
 
+            if (kasTaimerKäib) {
+                möödunudAeg = std::chrono::steady_clock::now() - mänguAlgus;
+
+                std::string taimeriTekst = "Aeg: " + VormindaAeg(möödunudAeg);
+
+                AlignForWidth(ImGui::CalcTextSize(taimeriTekst.c_str()).x);
+                ImGui::Text("%s", taimeriTekst.c_str());
+            }
 
             // Veidi vahet
             ImGui::Dummy(ImVec2(0.0f, 20.0f));
@@ -319,6 +342,7 @@ int main() {
 
                                 // Võidukontroll
                                 if (IsPuzzleSolved(nuppudeVäärtused, gridSize)) {
+                                    kasTaimerKäib = false;  // Miks ei peata?
                                     ImGui::OpenPopup("Võit!");
                                 }
                             }
@@ -341,6 +365,7 @@ int main() {
                 ImGui::Text("Palju õnne!");
                 ImGui::Text("Sa lahendasid numbripusle!");
                 ImGui::Text("Käike kulus: %d", kaigud);
+                ImGui::Text("Aega kulus: %s", VormindaAeg(möödunudAeg).c_str());
                 ImGui::Dummy(ImVec2(0.0f, 10.0f));
                 if (ImGui::Button("Tagasi menüüsse")) {
                     aktiivneVaade = Vaade::MENYY;
