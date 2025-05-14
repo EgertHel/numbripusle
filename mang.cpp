@@ -51,7 +51,6 @@ static std::vector<int> nuppudeVäärtused;
 static bool kasOnGenereeritud = false;
 std::chrono::steady_clock::time_point mänguAlgus;
 std::chrono::steady_clock::duration möödunudAeg;
-std::chrono::steady_clock::duration loppAeg;
 bool kasTaimerKäib = false;
 
 int main() {
@@ -256,9 +255,11 @@ int main() {
 
             if (kasTaimerKäib) {
                 möödunudAeg = std::chrono::steady_clock::now() - mänguAlgus;
-
                 std::string taimeriTekst = "Aeg: " + VormindaAeg(möödunudAeg);
-
+                AlignForWidth(ImGui::CalcTextSize(taimeriTekst.c_str()).x);
+                ImGui::Text("%s", taimeriTekst.c_str());
+            }else{
+                std::string taimeriTekst = "Aeg: " + VormindaAeg(möödunudAeg);
                 AlignForWidth(ImGui::CalcTextSize(taimeriTekst.c_str()).x);
                 ImGui::Text("%s", taimeriTekst.c_str());
             }
@@ -296,6 +297,7 @@ int main() {
                             std::swap(nuppudeVäärtused[index], nuppudeVäärtused[emptyIndex]);
                             // Võidukontroll
                             if (IsPuzzleSolved(nuppudeVäärtused, gridSize)) {
+                                kasTaimerKäib = false;
                                 ImGui::OpenPopup("Võit!");
                             }
                         }
