@@ -5,6 +5,7 @@
 #include <string>
 #include "include/SDL3/SDL.h"
 #include "grid.h"
+#include "solver.h"
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <include/SDL3/SDL_opengles2.h>
@@ -52,6 +53,10 @@ static bool kasOnGenereeritud = false;
 std::chrono::steady_clock::time_point mänguAlgus;
 std::chrono::steady_clock::duration möödunudAeg;
 bool kasTaimerKäib = false;
+//automaatse lahenduse jaoks
+std::vector<std::vector<int>> lahendusteekond; // lahenduse sammud
+size_t praeguneLahendusIndeks = 0;
+bool automaatneLahendusKäib = false;
 
 int main() {
     // SDL käivitamine
@@ -187,9 +192,9 @@ int main() {
             AlignForWidth(textWidth);
             ImGui::Text("Kas suudad kõik numbrid õigesse järjekorda panna?");
 
-            textWidth = ImGui::CalcTextSize("Iga käik loeb! Püüa lahendada pusle võimalikult väheste käikudega!").x;
+            textWidth = ImGui::CalcTextSize("Iga käik ja sekund loevad! Püüa lahendada pusle võimalikult kiiresti ja väheste käikudega!").x;
             AlignForWidth(textWidth);
-            ImGui::Text("Iga käik loeb! Püüa lahendada pusle võimalikult väheste käikudega!");
+            ImGui::Text("Iga käik ja sekund loevad! Püüa lahendada pusle võimalikult kiiresti ja väheste käikudega!");
             ImGui::NewLine();
 
             textWidth = ImGui::CalcTextSize("Vali sobiv ruudustiku suurus ja asu väljakutsele!").x;
@@ -271,6 +276,26 @@ int main() {
             if (!kasOnGenereeritud) {
                 nuppudeVäärtused = GenerateSolvablePuzzle(gridSize);
                 kasOnGenereeritud = true;
+            }
+
+            // Kui automaatne lahendus käib, uuenda nuppude väärtusi ja indekseid
+            if (automaatneLahendusKäib) {
+                if (praeguneLahendusIndeks + 1 < lahendusteekond.size()) {
+                    static float aeg = 0.0f;
+                    const float sammudeVaheAeg = 0.5f;
+
+                    aeg += ImGui::GetIO().DeltaTime;
+                    if (aeg >= sammudeVaheAeg) {
+                        aeg = 0.0f;
+                        ++praeguneLahendusIndeks;
+                        nuppudeVäärtused = lahendusteekond[praeguneLahendusIndeks];
+                        ++kaigud;
+                    }
+                } else {
+                    automaatneLahendusKäib = false;
+                    kasTaimerKäib = false;
+                    ImGui::OpenPopup("Võit!");
+                }
             }
 
 
@@ -357,6 +382,19 @@ int main() {
             
             ImGui::SetCursorPos(ImVec2(50, (70 + (gridSize * 70) + 70)));
 
+            // Automaatse lahenduse nupp (3x3 jaoks)
+            if (gridSize == 3 ) {
+                ImGui::SetCursorPos(ImVec2(50, 70 + (gridSize * 70) + 20));
+                if (ImGui::Button("Automaatne lahendus", ImVec2(200, 40))) {
+                    lahendusteekond = LahendaAStar(nuppudeVäärtused, gridSize);
+                    if (!lahendusteekond.empty()) {
+                        praeguneLahendusIndeks = 0;
+                        automaatneLahendusKäib = true;
+                    }
+                }
+            }
+
+            ImGui::Dummy(ImVec2(0.0f, 10.0f));
             if (ImGui::Button("Tagasi menüüsse", ImVec2(200, 40))) {
                 aktiivneVaade = Vaade::MENYY;
                 manguakenAvatud = false;
