@@ -380,11 +380,10 @@ int main() {
             }
 
             
-            ImGui::SetCursorPos(ImVec2(50, (70 + (gridSize * 70) + 70)));
 
             // Automaatse lahenduse nupp (3x3 jaoks)
             if (gridSize == 3 ) {
-                ImGui::SetCursorPos(ImVec2(50, 70 + (gridSize * 70) + 20));
+                ImGui::Dummy(ImVec2(0.0f, 10.0f));
                 if (ImGui::Button("Automaatne lahendus", ImVec2(200, 40))) {
                     lahendusteekond = LahendaAStar(nuppudeVäärtused, gridSize);
                     if (!lahendusteekond.empty()) {
